@@ -13,8 +13,8 @@ describe("Nina requested team grants", () => {
   it("keeps KOL and Socom privileges out of administration and raw finance", () => {
     expect(hasCompanyGrant("nam-tran", "booking", "manage")).toBe(true);
     expect(hasCompanyGrant("nam-tran", "campaign", "manage")).toBe(false);
-    expect(hasCompanyGrant("minh-tri", "livestream", "manage")).toBe(true);
-    for (const id of ["nam-tran", "minh-tri"]) {
+    expect(hasCompanyGrant("tri-pham", "livestream", "manage")).toBe(true);
+    for (const id of ["nam-tran", "tri-pham"]) {
       expect(hasCompanyGrant(id, "invoices", "read")).toBe(false);
       expect(hasCompanyGrant(id, "administration", "manage")).toBe(false);
     }
