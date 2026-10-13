@@ -69,8 +69,10 @@ import {
   buildOrdersCsv,
 } from "./data/demoData";
 import "./index.css";
+import DataCapabilities from "./components/DataCapabilities";
+import CompanyAgentsDemo from "./components/CompanyAgentsDemo";
 
-type Page = "overview" | "analysis" | "clients" | "creators" | "campaigns" | "products" | "finance" | "connections";
+type Page = "overview" | "analysis" | "clients" | "creators" | "campaigns" | "products" | "finance" | "connections" | "dataCapabilities" | "companyAgents";
 type Modal = "client" | "campaign" | "product" | "connect" | null;
 type AnalysisTab = "Khách hàng" | "Creator" | "Sản phẩm" | "Chiến dịch";
 type AssistantMessage = { question: string; answer: string; kind: "mix" | "commission" | "alerts" | "channel" };
@@ -96,6 +98,8 @@ const pageMeta: Record<Page, { label: string; icon: typeof LayoutDashboard; grou
   products: { label: "Sản phẩm", icon: Package },
   finance: { label: "Tài chính", icon: WalletCards, group: "Kiểm soát" },
   connections: { label: "Kết nối & quyền", icon: ShieldCheck },
+  dataCapabilities: { label: "Dữ liệu & API", icon: FileSpreadsheet },
+  companyAgents: { label: "Agents công ty", icon: Bot },
 };
 
 function loadDemo(): StoredDemo {
@@ -614,7 +618,7 @@ export default function App() {
     </>;
   };
 
-  const content = page === "overview" ? renderOverview() : page === "analysis" ? renderAnalysis() : page === "clients" ? renderClients() : page === "creators" ? renderCreators() : page === "campaigns" ? renderCampaigns() : page === "products" ? renderProducts() : page === "finance" ? renderFinance() : renderConnections();
+  const content = page === "companyAgents" ? <CompanyAgentsDemo onOpenData={() => nav("dataCapabilities")} /> : page === "dataCapabilities" ? <DataCapabilities /> : page === "overview" ? renderOverview() : page === "analysis" ? renderAnalysis() : page === "clients" ? renderClients() : page === "creators" ? renderCreators() : page === "campaigns" ? renderCampaigns() : page === "products" ? renderProducts() : page === "finance" ? renderFinance() : renderConnections();
 
   return <div className="app-shell">
     <aside className={`sidebar ${sidebarOpen ? "open" : ""}`} aria-label="Điều hướng Nina Agency Hub"><div className="brand"><NinaMark /><span className="brand-name">Nina Agency Hub</span><button className="sidebar-close icon-button" onClick={() => setSidebarOpen(false)} aria-label="Đóng điều hướng"><PanelLeftClose size={18} /></button></div><div className="sidebar-label">HỆ ĐIỀU HÀNH AGENCY</div><nav>{(Object.keys(pageMeta) as Page[]).map((item) => { const meta = pageMeta[item]; const Icon = meta.icon; return <div key={item}>{meta.group && <div className="nav-group">{meta.group}</div>}<button className={`nav-item ${page === item ? "active" : ""}`} onClick={() => nav(item)}><Icon size={17} /><span>{meta.label}</span>{page === item && <i />}</button></div>; })}</nav><div className="sidebar-footer"><DemoBadge /><button className="reset-button" onClick={resetDemo}><RefreshCcw size={14} /> Đặt lại demo</button><div className="user-chip"><span>PN</span><div><b>Phuc Nguyen</b><small>Chủ agency</small></div><ChevronDown size={14} /></div></div></aside>
