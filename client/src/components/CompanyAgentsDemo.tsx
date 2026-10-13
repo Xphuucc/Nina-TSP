@@ -10,8 +10,7 @@ const workflows: Record<CompanyMember["scope"], { purpose: string; task: string;
   leads: { purpose: "Quản lý lead", task: "Rà lead pipeline, lead cần follow-up và conversion theo nguồn.", output: ["Lead theo nguồn / giai đoạn / owner", "Follow-up và next action", "Pipeline conversion theo kỳ", "Bản nháp checklist growth; không truy cập dữ liệu Finance"], departments: ["Growth"] },
   finance: { purpose: "Hóa đơn và dòng tiền", task: "Rà hóa đơn, phải thu/phải trả và dòng tiền.", output: ["Hóa đơn và kỳ đến hạn", "Phải thu / phải trả riêng", "Thu / chi thực tế và dự kiến riêng", "Checklist đối soát; không thực hiện thanh toán"], departments: ["Finance"] },
 };
-export default function CompanyAgentsDemo({ onOpenData }: { onOpenData: () => void }) {
-  const [profileId, setProfileId] = useState("phuc-nguyen");
+export default function CompanyAgentsDemo({ onOpenData, profileId, onProfileChange }: { onOpenData: () => void; profileId: string; onProfileChange: (id: string) => void }) {
   const [provider, setProvider] = useState("Ollama local");
   const [request, setRequest] = useState("");
   const [preview, setPreview] = useState(false);
@@ -20,7 +19,7 @@ export default function CompanyAgentsDemo({ onOpenData }: { onOpenData: () => vo
   const sources = dataCapabilities.filter(item => profile.scope === "all_company" || workflow.departments.includes(item.department));
   return <section className="cap-audit">
     <div className="cap-intro"><span className="eyebrow">NINA COMPANY AGENTS · WORKFLOW SIMULATION</span><h2>Trợ lý cho nhân viên và BOD</h2><p>Demo kịch bản hỗ trợ công việc. Chưa kết nối model/API, chưa có phân quyền thật. Chọn hồ sơ ở đây chỉ đổi kịch bản; hệ thống thật lấy quyền từ tài khoản đăng nhập.</p></div>
-    <div className="cap-phase" aria-label="Hồ sơ trợ lý">{companyTeam.map(item => <button type="button" key={item.id} aria-pressed={profile.id === item.id} onClick={() => { setProfileId(item.id); setRequest(""); setPreview(false); }}>{item.name} · {item.title}</button>)}</div>
+    <div className="cap-phase" aria-label="Hồ sơ trợ lý">{companyTeam.map(item => <button type="button" key={item.id} aria-pressed={profile.id === item.id} onClick={() => { onProfileChange(item.id); setRequest(""); setPreview(false); }}>{item.name} · {item.title}</button>)}</div>
     <div className="cap-layout" style={{ marginTop: 22 }}>
       <article className="cap-detail"><h3>{profile.name}</h3><p><b>{profile.title}</b></p><p>{profile.focus}</p><p>{workflow.purpose}</p>
         <label style={{ display: "block" }}>Route model dự kiến<select style={{ display: "block", padding: 10, marginTop: 8 }} value={provider} onChange={event => setProvider(event.target.value)}>{["Ollama local", "OpenRouter", "Direct API"].map(item => <option key={item}>{item}</option>)}</select></label>
