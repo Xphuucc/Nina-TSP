@@ -1,0 +1,28 @@
+name: Live Nina browser QA
+on:
+  push:
+    branches: [qa/live-demo-browser]
+permissions:
+  contents: read
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install isolated browser test dependencies
+        run: npm install --prefix "$RUNNER_TEMP/nina-browser-qa" --no-save --package-lock=false playwright@1.56.1
+      - name: Install Chromium
+        run: '"$RUNNER_TEMP/nina-browser-qa/node_modules/.bin/playwright" install --with-deps chromium'
+      - name: Run live web checks
+        run: NODE_PATH="$RUNNER_TEMP/nina-browser-qa/node_modules" node scripts/live-web-qa.cjs
+      - name: Upload QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nina-live-web-qa
+          path: web-qa-results
+          retention-days: 3
