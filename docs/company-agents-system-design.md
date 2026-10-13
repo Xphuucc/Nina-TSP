@@ -88,3 +88,18 @@ Server OS/version; CPU/RAM/storage; GPU/VRAM if available; expected concurrent u
 - Ollama platform setup: https://docs.ollama.com/windows and https://docs.ollama.com/linux
 - TikTok creator marketplace performance: https://partner.tiktokshop.com/docv2/page/get-marketplace-creator-performance-202406
 - TikTok asset authorization: https://partner.tiktokshop.com/docv2/page/get-authorized-category-assets-202405
+
+## Independent review additions
+Reviewed with a separate architecture reviewer. Keep one runtime plus profiles initially; bounded swarm subtasks may be introduced only after measured benefit. Every subtask inherits the caller's scope and provider policy; final synthesis cannot widen access or validate arithmetic by agreement.
+
+For local-only inference, configure OLLAMA_NO_CLOUD=1 and provision an allowlist of installed local model tags. Localhost alone does not prove inference stays local. Restrict remote Ollama with private network and authenticated service access.
+
+For OpenRouter, explicitly configure approved upstream providers and allow_fallbacks, require_parameters, data_collection and applicable ZDR requirements. These policies are provider/model dependent and must be verified; gateway routing is not the only possible fallback. Classify the whole outbound payload (history, tool results, retrieved documents, questions and repair prompts) before every call.
+
+Bind every numerical claim to an exact evidence row/field and metric version. Evidence-ID existence alone is insufficient. Use a dataRevision/snapshot so dashboard and agent totals refer to compatible observations; coverage stays unknown when its denominator is unknown.
+
+Recheck entitlement before every tool and immediately before delivering a result. Scope memory/cache/document retrieval/audit by company and current entitlement; no leaked revoked content in summaries. Scheduled jobs use explicit service identities and access-controlled outputs. Buffer business answers until schema, evidence and current permissions pass validation.
+
+Official references:
+- https://docs.ollama.com/faq (local-only cloud disable)
+- https://openrouter.ai/docs/guides/routing/provider-selection (upstream routing/policy)
