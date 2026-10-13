@@ -59,3 +59,14 @@ Use one runtime with department profiles initially. Optional specialist tasks in
 - Valid evidence ID with invented 25%: reject/repair.
 - Entitlement revoked during request: prevent final delivery.
 - Unsupported user question: no keyword-based invented factual answer.
+
+## Confirmed named team configuration
+Nina Nguyen — CEO: full application access.
+Thuc Huynh — Deputy CEO: full application access.
+Phuc Nguyen — Planner: full application access; do not label as agency owner.
+Nam Tran — KOL Management: booking performance by KOL, Brand and Campaign.
+Tri Pham — Head of Socom: overall MCN, TAP, Livestream and KOL management.
+Huong Le — Head of Growth: lead pipeline and follow-up management.
+Lin Huynh — Finance Manager: invoice and cashflow management.
+
+These entitlements are an approved policy specification. Resolve the actual member via server-authenticated identity; do not trust a member ID or profile sent from the browser. Full application access for the three named roles is explicit user authorization, not a consequence of the BOD prompt. Nam's Brand/Campaign visibility is limited to booking context; other departments remain limited to their operational remit.
