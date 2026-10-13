@@ -20,12 +20,29 @@ async function check(name, fn) {
   await check("Live page loads and Phuc is Planner", async () => {
     assert.equal(response.status(),200);
     await page.locator(".workspace").waitFor();
-    assert.equal((await page.locator(".user-chip small").innerText()).trim(),"Planner");
+    assert.equal((await page.locator(".user-chip small").innerText()).trim(),"Planner · Mô phỏng");
     assert.equal(await page.getByText("Chủ agency",{exact:true}).count(),0);
     for (const img of await page.locator("img").all()) {
       assert.equal(await img.evaluate(el => el.complete && el.naturalWidth > 0),true,"Logo did not load");
     }
     await page.screenshot({path:path.join(out,"desktop-overview.png"),fullPage:true});
+  });
+  await check("Sidebar profile synchronizes agents and survives reload", async () => {
+    const select = page.getByLabel("Đổi hồ sơ demo");
+    assert.equal(await select.locator("option").count(),7);
+    await select.selectOption("nam-tran");
+    await page.getByRole("button",{name:"Agents công ty",exact:true}).click();
+    assert.equal(await page.getByRole("button",{name:"Nam Tran · KOL Management",exact:true}).getAttribute("aria-pressed"),"true");
+    await page.reload({waitUntil:"networkidle"});
+    assert.equal(await page.getByLabel("Đổi hồ sơ demo").inputValue(),"nam-tran");
+    await page.getByRole("button",{name:"Agents công ty",exact:true}).click();
+    await page.getByRole("button",{name:"Lin Huynh · Finance Manager",exact:true}).click();
+    assert.equal(await page.getByLabel("Đổi hồ sơ demo").inputValue(),"lin-huynh");
+    await page.getByLabel("Mở BOD Assistant").click();
+    assert.ok((await page.locator(".assistant-intro").innerText()).includes("Lin Huynh"));
+    await page.getByLabel("Đóng BOD Assistant").click();
+    await select.selectOption("phuc-nguyen");
+    await page.getByRole("button",{name:"Tổng quan",exact:true}).click();
   });
   await check("Dashboard business-line and date filters change metrics", async () => {
     const before = await page.locator(".metric-card").allTextContents();
