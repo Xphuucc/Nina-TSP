@@ -290,5 +290,53 @@ export const dataCapabilities: DataCapability[] = [
     "doc": "https://partner.tiktokshop.com/docv2/page/r1wchdjn",
     "question": "Chọn module mở rộng sau khi có nhu cầu và market phù hợp.",
     "department": "Vận hành"
+  },
+  {
+    "id": "growth-leads",
+    "title": "Lead & pipeline Growth",
+    "owner": "Nội bộ",
+    "status": "internal",
+    "data": "Lead source, stage, owner, follow-up, next action, conversion",
+    "permission": "Huong Le / Head of Growth; CEO, Deputy CEO, Planner toàn quyền",
+    "limit": "CRM nội bộ; chưa có nguồn TTS lead API được xác minh.",
+    "doc": null,
+    "question": "Lead nào cần follow-up và nguồn nào chuyển đổi tốt?",
+    "department": "Growth"
+  },
+  {
+    "id": "finance-invoices",
+    "title": "Hóa đơn & phải thu/phải trả",
+    "owner": "Nội bộ",
+    "status": "internal",
+    "data": "Invoice ID, client/vendor, số tiền/tiền tệ, kỳ đến hạn, payment status",
+    "permission": "Lin Huynh / Finance Manager; CEO, Deputy CEO, Planner toàn quyền",
+    "limit": "Nguồn kế toán/file; không suy ra hóa đơn công ty từ GMV hoặc commission.",
+    "doc": null,
+    "question": "Hóa đơn nào đến hạn hoặc chưa đối soát?",
+    "department": "Finance"
+  },
+  {
+    "id": "finance-cashflow",
+    "title": "Dòng tiền Nina",
+    "owner": "Nội bộ",
+    "status": "internal",
+    "data": "Thu/chi thực tế, planned cashflow, opening balance và reconciliation",
+    "permission": "Lin Huynh / Finance Manager; CEO, Deputy CEO, Planner toàn quyền",
+    "limit": "Nguồn ngân hàng/kế toán được cấp quyền; Get Payments không hỗ trợ SEA.",
+    "doc": null,
+    "question": "Thu/chi kỳ này thế nào, khoản nào cần đối soát?",
+    "department": "Finance"
+  },
+  {
+    "id": "kol-booking",
+    "title": "Booking theo KOL / Brand / Campaign",
+    "owner": "Nội bộ",
+    "status": "internal",
+    "data": "Booking ID, KOL, Brand, Campaign, fee, deliverables, attribution links",
+    "permission": "Nam Tran / KOL Management; Tri Pham / Head of Socom; toàn quyền",
+    "limit": "Booking fee và hợp đồng là nguồn Nina. GMV chỉ dùng nguồn attribution đã đối soát.",
+    "doc": null,
+    "question": "Booking nào hiệu quả theo KOL, Brand hoặc Campaign?",
+    "department": "KOL"
   }
 ];
