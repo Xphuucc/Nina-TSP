@@ -42,7 +42,7 @@ export default function DataCapabilities() {
       "Cấp quyền → xác minh scope/market → backfill → incremental sync → đối soát → database chung → dashboard & agent"}</p>
     <div className="cap-controls">
       <label>Phạm vi<select value={owner} onChange={e => updateFilter(setOwner, e.target.value)}>{["Tất cả", "TSP", "TAP", "Nội bộ", "Ngoài TTS"].map(v => <option key={v}>{v}</option>)}</select></label>
-      <label>Phòng ban / mục đích<select value={department} onChange={e => updateFilter(setDepartment, e.target.value)}>{["Tất cả", "BOD", "KOL", "Account", "Vận hành", "Finance", "Kết nối & quyền"].map(v => <option key={v}>{v}</option>)}</select></label>
+      <label>Phòng ban / mục đích<select value={department} onChange={e => updateFilter(setDepartment, e.target.value)}>{["Tất cả", "BOD", "KOL", "Account", "Vận hành", "Growth", "Finance", "Kết nối & quyền"].map(v => <option key={v}>{v}</option>)}</select></label>
       <label>Mức xác minh<select value={status} onChange={e => updateFilter(setStatus, e.target.value)}><option value="Tất cả">Tất cả</option>{Object.entries(statusLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
     </div>
     <div className="cap-layout">
