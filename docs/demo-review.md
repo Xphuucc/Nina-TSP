@@ -4,7 +4,7 @@ Branch: docs/manual-api-data-phases. PR: https://github.com/Xphuucc/Nina-TSP/pul
 
 ## What changed
 
-Open sidebar pages Dữ liệu & API and Agents công ty. The first includes 24 data-source families, evidence status, TSP/TAP and department filters, official links and manual/API ingestion plans. The second previews BOD and employee workflows for KOL/Affiliate, Account/Sales, Operations and Finance. Model-route choices are illustrative and do not initiate inference or grant permissions. Existing dashboards continue to use synthetic demo records.
+Open sidebar pages Dữ liệu & API and Agents công ty. The first includes 28 data-source families, evidence status, TSP/TAP and department filters, official links and manual/API ingestion plans. The second previews the seven named Nina roles: Nina Nguyen CEO, Thuc Huynh Deputy CEO, Phuc Nguyen Planner (all full access), Nam Tran KOL Management, Tri Pham Head of Socom, Huong Le Head of Growth and Lin Huynh Finance Manager. Model-route choices are illustrative and do not initiate inference or grant permissions. Existing dashboards continue to use synthetic demo records.
 
 ## Start locally (Linux or PowerShell)
 
@@ -37,3 +37,17 @@ GitHub Actions run https://github.com/Xphuucc/Nina-TSP/actions/runs/38349847385 
 ## Next real-data prerequisites
 
 Anonymized reports, developer app scopes and approved market/account evidence; company access policy and identity provider; permitted cloud data classifications; model provisioned on target hardware/API with measured tool/answer quality. Implement common data ingestion and scoped tools before replacing simulated answers.
+
+## Confirmed team permissions
+
+| Member | Role | Scope |
+| --- | --- | --- |
+| Nina Nguyen | CEO | Full access |
+| Thuc Huynh | Deputy CEO | Full access |
+| Phuc Nguyen | Planner | Full access; not agency owner |
+| Nam Tran | KOL Management | Booking/performance by KOL, Brand, Campaign; brand/campaign read within booking context |
+| Tri Pham | Head of Socom | Overall/performance MCN, TAP, Livestream, KOL management |
+| Huong Le | Head of Growth | Lead management |
+| Lin Huynh | Finance Manager | Invoices and cashflow |
+
+shared/companyTeam.ts expresses proposed resource grants, with tests for full-access and department boundaries. It is not wired to production login or server-side policy yet. Do not treat the demo selector as real authorization. Scope/grant names are internal application decisions; no external account was provisioned.
