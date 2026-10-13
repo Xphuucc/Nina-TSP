@@ -4,10 +4,12 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   BarChart3,
+  Bot,
   BellRing,
   Building2,
   CalendarDays,
   Check,
+  Clock3,
   ChevronDown,
   ChevronRight,
   CircleHelp,
@@ -20,12 +22,14 @@ import {
   LayoutDashboard,
   Link2,
   Menu,
+  MessageCircle,
   Package,
   PanelLeftClose,
   Pencil,
   Plus,
   RefreshCcw,
   Search,
+  Send,
   ShieldCheck,
   SlidersHorizontal,
   TrendingUp,
@@ -69,6 +73,7 @@ import "./index.css";
 type Page = "overview" | "analysis" | "clients" | "creators" | "campaigns" | "products" | "finance" | "connections";
 type Modal = "client" | "campaign" | "product" | "connect" | null;
 type AnalysisTab = "Khách hàng" | "Creator" | "Sản phẩm" | "Chiến dịch";
+type AssistantMessage = { question: string; answer: string; kind: "mix" | "commission" | "alerts" | "channel" };
 
 type StoredDemo = {
   clients: Client[];
@@ -100,7 +105,7 @@ function loadDemo(): StoredDemo {
   } catch {
     // Fall through to deterministic base data.
   }
-  return { clients, products, campaigns, creators, audit: ["13/10/2026 10:00 · Khởi tạo dữ liệu mô phỏng AgencyOS."] };
+  return { clients, products, campaigns, creators, audit: ["13/10/2026 10:00 · Khởi tạo dữ liệu mô phỏng Nina Agency Hub."] };
 }
 
 function Panel({ children, className = "", title, action }: { children: ReactNode; className?: string; title?: string; action?: ReactNode }) {
@@ -118,6 +123,10 @@ function StatusPill({ children, tone = "neutral" }: { children: ReactNode; tone?
 
 function DemoBadge() {
   return <span className="demo-badge"><CloudOff size={13} /> Dữ liệu mẫu · Chưa kết nối TikTok Shop</span>;
+}
+
+function NinaMark({ dark = false }: { dark?: boolean }) {
+  return <img className={`nina-mark ${dark ? "dark" : ""}`} src={dark ? "/brand/Primary_Black.png" : "/brand/Primary_White.png"} alt="Nina Agency Hub" />;
 }
 
 function MetricCard({ label, value, delta, detail, tone = "teal" }: { label: string; value: string; delta?: string; detail: string; tone?: "teal" | "amber" | "ink" }) {
@@ -169,6 +178,51 @@ function Drawer({ title, children, onClose }: { title: string; children: ReactNo
   );
 }
 
+function AssistantDrawer({
+  period,
+  role,
+  summary,
+  finance,
+  mix,
+  filteredOrders,
+  alerts,
+  messages,
+  onAsk,
+  onClose,
+}: {
+  period: PeriodDays;
+  role: RoleFilter;
+  summary: ReturnType<typeof getOrderSummary>;
+  finance: ReturnType<typeof getFinance>;
+  mix: ReturnType<typeof getRevenueMix>;
+  filteredOrders: DemoOrder[];
+  alerts: { title: string; detail: string; label: string }[];
+  messages: AssistantMessage[];
+  onAsk: (question: string) => void;
+  onClose: () => void;
+}) {
+  const questions = [
+    `GMV ${period} ngày phân bổ thế nào giữa MCN / TAP / TSP?`,
+    "Hoa hồng nào đang chờ quyết toán?",
+    "Cảnh báo vận hành cần xử lý trước?",
+    "Kênh nào đang dẫn GMV đủ điều kiện?",
+  ];
+  const channelValue = (channel: DemoOrder["channel"]) => filteredOrders.filter((order) => order.channel === channel).reduce((total, order) => total + order.eligibleGmv, 0);
+  return <div className="drawer-backdrop" role="presentation" onMouseDown={onClose}>
+    <aside className="drawer assistant-drawer" role="dialog" aria-modal="true" aria-labelledby="assistant-title" onMouseDown={(event) => event.stopPropagation()}>
+      <div className="drawer-header assistant-header"><div><span className="eyebrow assistant-eyebrow"><Bot size={12} /> BOD ASSISTANT · SIMULATION</span><h2 id="assistant-title">Nina BOD Assistant</h2><p>Trợ lý mô phỏng cho review dữ liệu agency</p></div><button className="icon-button" onClick={onClose} aria-label="Đóng BOD Assistant"><X size={18} /></button></div>
+      <div className="assistant-status"><NinaMark dark /><div><b>Chỉ dùng dữ liệu mẫu</b><span>Chưa kết nối Gemma · Chưa kết nối TikTok Shop</span></div><span className="status-pill warning">Demo</span></div>
+      <div className="assistant-context"><div><Clock3 size={14} /><span>Kỳ báo cáo</span><b>{period} ngày</b></div><div><MessageCircle size={14} /><span>Phạm vi</span><b>{role}</b></div><div><CloudOff size={14} /><span>Data freshness</span><b>13/10/2026 · 10:00 ICT</b></div></div>
+      <div className="assistant-body">
+        <div className="assistant-intro"><span className="assistant-avatar"><Bot size={16} /></span><div><b>Xin chào, Phuc.</b><p>Tôi có thể tóm tắt hiệu suất, hoa hồng và cảnh báo từ mô hình mẫu đang mở.</p></div></div>
+        {messages.map((message, index) => <div className="assistant-thread" key={`${message.question}-${index}`}><div className="assistant-question">{message.question}</div><div className="assistant-answer"><div className="assistant-answer-head"><span className="assistant-avatar"><Bot size={14} /></span><b>Phân tích từ Nina</b></div><p>{message.answer}</p>{message.kind === "mix" && <div className="assistant-bars">{mix.map((item) => <div key={item.line}><span>{item.line}</span><i style={{ width: `${summary.eligibleGmv ? Math.max(8, item.value / summary.eligibleGmv * 100) : 0}%` }} /><strong>{formatVnd(item.value, true)}</strong></div>)}</div>}{message.kind === "commission" && <div className="assistant-mini-metrics"><div><span>Ước tính</span><b>{formatVnd(summary.estimatedCommission, true)}</b></div><div><span>Pending</span><b>{formatVnd(summary.pendingCommission, true)}</b></div><div><span>Đã QT</span><b>{formatVnd(summary.settledCommission, true)}</b></div></div>}{message.kind === "alerts" && <div className="assistant-alerts">{alerts.slice(0, 3).map((alert) => <div key={alert.title}><AlertTriangle size={13} /><span>{alert.title}</span><b>{alert.label}</b></div>)}</div>}{message.kind === "channel" && <div className="assistant-channel">{(["VIDEO", "LIVE", "PRODUCT_CARD"] as const).map((channel) => <div key={channel}><span>{channel}</span><i style={{ width: `${Math.max(8, channelValue(channel) / Math.max(summary.eligibleGmv, 1) * 100)}%` }} /></div>)}</div>}</div></div>)}
+      </div>
+      <div className="assistant-suggestions"><span className="eyebrow">GỢI Ý CÂU HỎI</span>{questions.map((question) => <button key={question} onClick={() => onAsk(question)}>{question}<ChevronRight size={13} /></button>)}</div>
+      <div className="assistant-compose"><span>Demo local · câu trả lời định trước theo số liệu đang lọc</span><button className="button" onClick={() => onAsk(questions[0])}><Send size={14} /> Hỏi mẫu</button></div>
+    </aside>
+  </div>;
+}
+
 function TrendChart({ rows }: { rows: ReturnType<typeof getDailyTrend> }) {
   const total = rows.map((row) => row.VIDEO + row.LIVE + row.PRODUCT_CARD);
   const max = Math.max(...total, 1);
@@ -204,7 +258,7 @@ function TrendChart({ rows }: { rows: ReturnType<typeof getDailyTrend> }) {
 
 function RevenueMix({ rows }: { rows: ReturnType<typeof getRevenueMix> }) {
   const max = Math.max(...rows.map((row) => row.value), 1);
-  const colors: Record<BusinessLine, string> = { MCN: "#4f8c87", TAP: "#0f766e", TSP: "#9ac7c2" };
+  const colors: Record<BusinessLine, string> = { MCN: "#ff9a72", TAP: "#ff5401", TSP: "#ffc0a4" };
   return <div className="mix-list">{rows.map((row) => <div className="mix-row" key={row.line}><div className="mix-label"><span style={{ background: colors[row.line] }} />{row.line}</div><div className="mix-track"><i style={{ width: `${Math.max(7, row.value / max * 100)}%`, background: colors[row.line] }} /></div><strong>{formatVnd(row.value, true)}</strong></div>)}</div>;
 }
 
@@ -245,6 +299,8 @@ export default function App() {
   const [campaignForm, setCampaignForm] = useState<Partial<Campaign>>({});
   const [productForm, setProductForm] = useState<Partial<Product>>({});
   const [creatorForm, setCreatorForm] = useState<Partial<Creator>>({});
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantMessages, setAssistantMessages] = useState<AssistantMessage[]>([]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ clients: clientsState, products: productsState, campaigns: campaignsState, creators: creatorsState, audit }));
@@ -282,13 +338,35 @@ export default function App() {
   const appendAudit = (event: string) => setAudit((previous) => [`13/10/2026 10:00 · ${event}`, ...previous].slice(0, 8));
   const matches = (...values: (string | number | undefined)[]) => !normalizedQuery || values.some((value) => String(value ?? "").toLocaleLowerCase("vi-VN").includes(normalizedQuery));
 
+  const askAssistant = (question: string) => {
+    const lower = question.toLocaleLowerCase("vi-VN");
+    let answer = "";
+    let kind: AssistantMessage["kind"] = "channel";
+    if (lower.includes("phân bổ") || lower.includes("mcn") || lower.includes("tap") || lower.includes("tsp")) {
+      const lead = [...mix].sort((left, right) => right.value - left.value)[0];
+      answer = `Trong ${period} ngày, GMV đủ điều kiện đang ở mức ${formatVnd(summary.eligibleGmv, true)}. ${lead?.line ?? "—"} dẫn đầu với ${formatVnd(lead?.value ?? 0, true)}; đây là GMV, không phải doanh thu agency.`;
+      kind = "mix";
+    } else if (lower.includes("hoa hồng") || lower.includes("quyết toán")) {
+      answer = `Phần hoa hồng cần theo dõi là ${formatVnd(summary.estimatedCommission + summary.pendingCommission, true)} gồm ước tính và pending. Đã quyết toán hiện là ${formatVnd(summary.settledCommission, true)}; doanh thu agency trong cùng bộ lọc là ${formatVnd(finance.agencyRevenue, true)}.`;
+      kind = "commission";
+    } else if (lower.includes("cảnh báo") || lower.includes("xử lý")) {
+      answer = overviewAlerts.length ? `Có ${overviewAlerts.length} cảnh báo mẫu trong phạm vi ${role}, kỳ ${period} ngày. Tôi ưu tiên cảnh báo đầu tiên trong danh sách vì tác động trực tiếp đến tồn kho hoặc quyền vận hành.` : "Không có cảnh báo mẫu trong phạm vi đang chọn. Đây vẫn là kết quả từ dữ liệu mô phỏng, không phải cảnh báo live.";
+      kind = "alerts";
+    } else {
+      answer = `Kênh dẫn GMV đủ điều kiện hiện là ${getLeadingChannel(filteredOrders)} trong kỳ ${period} ngày. Dữ liệu được chốt tại 13/10/2026 10:00 ICT và không có sync TikTok Shop thực.`;
+      kind = "channel";
+    }
+    setAssistantMessages((previous) => [{ question, answer, kind }, ...previous].slice(0, 4));
+    setAssistantOpen(true);
+  };
+
   const resetDemo = () => {
     localStorage.removeItem(STORAGE_KEY);
     setClientsState(clients);
     setProductsState(products);
     setCampaignsState(campaigns);
     setCreatorsState(creators);
-    setAudit(["13/10/2026 10:00 · Khởi tạo lại dữ liệu mô phỏng AgencyOS."]);
+    setAudit(["13/10/2026 10:00 · Khởi tạo lại dữ liệu mô phỏng Nina Agency Hub."]);
     toast.success("Đã khôi phục dữ liệu mẫu ban đầu.");
   };
 
@@ -298,7 +376,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `agencyos-${role.toLowerCase().replaceAll(" ", "-")}-${period}-ngay.csv`;
+    anchor.download = `nina-agency-hub-${role.toLowerCase().replaceAll(" ", "-")}-${period}-ngay.csv`;
     anchor.click();
     URL.revokeObjectURL(url);
     toast.success(`Đã xuất ${formatNumber(filteredOrders.length)} dòng dữ liệu mẫu.`);
@@ -539,16 +617,17 @@ export default function App() {
   const content = page === "overview" ? renderOverview() : page === "analysis" ? renderAnalysis() : page === "clients" ? renderClients() : page === "creators" ? renderCreators() : page === "campaigns" ? renderCampaigns() : page === "products" ? renderProducts() : page === "finance" ? renderFinance() : renderConnections();
 
   return <div className="app-shell">
-    <aside className={`sidebar ${sidebarOpen ? "open" : ""}`} aria-label="Điều hướng AgencyOS"><div className="brand"><span className="brand-mark">A</span><span>Agency<span>OS</span></span><button className="sidebar-close icon-button" onClick={() => setSidebarOpen(false)} aria-label="Đóng điều hướng"><PanelLeftClose size={18} /></button></div><div className="sidebar-label">HỆ ĐIỀU HÀNH AGENCY</div><nav>{(Object.keys(pageMeta) as Page[]).map((item) => { const meta = pageMeta[item]; const Icon = meta.icon; return <div key={item}>{meta.group && <div className="nav-group">{meta.group}</div>}<button className={`nav-item ${page === item ? "active" : ""}`} onClick={() => nav(item)}><Icon size={17} /><span>{meta.label}</span>{page === item && <i />}</button></div>; })}</nav><div className="sidebar-footer"><DemoBadge /><button className="reset-button" onClick={resetDemo}><RefreshCcw size={14} /> Đặt lại demo</button><div className="user-chip"><span>PN</span><div><b>Phuc Nguyen</b><small>Chủ agency</small></div><ChevronDown size={14} /></div></div></aside>
+    <aside className={`sidebar ${sidebarOpen ? "open" : ""}`} aria-label="Điều hướng Nina Agency Hub"><div className="brand"><NinaMark /><span className="brand-name">Nina Agency Hub</span><button className="sidebar-close icon-button" onClick={() => setSidebarOpen(false)} aria-label="Đóng điều hướng"><PanelLeftClose size={18} /></button></div><div className="sidebar-label">HỆ ĐIỀU HÀNH AGENCY</div><nav>{(Object.keys(pageMeta) as Page[]).map((item) => { const meta = pageMeta[item]; const Icon = meta.icon; return <div key={item}>{meta.group && <div className="nav-group">{meta.group}</div>}<button className={`nav-item ${page === item ? "active" : ""}`} onClick={() => nav(item)}><Icon size={17} /><span>{meta.label}</span>{page === item && <i />}</button></div>; })}</nav><div className="sidebar-footer"><DemoBadge /><button className="reset-button" onClick={resetDemo}><RefreshCcw size={14} /> Đặt lại demo</button><div className="user-chip"><span>PN</span><div><b>Phuc Nguyen</b><small>Chủ agency</small></div><ChevronDown size={14} /></div></div></aside>
     {sidebarOpen && <button className="mobile-scrim" aria-label="Đóng điều hướng" onClick={() => setSidebarOpen(false)} />}
-    <main className="workspace"><header className="topbar"><button className="mobile-menu icon-button" onClick={() => setSidebarOpen(true)} aria-label="Mở điều hướng"><Menu size={19} /></button><div className="topbar-title"><span>{currentMeta.group ?? "TỔNG QUAN"}</span><b>{currentMeta.label}</b></div><label className="global-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm shop, creator, SKU..." aria-label="Tìm trong trang hiện tại" /></label><div className="filter-group"><label><span>LINE</span><select value={role} onChange={(event) => setRole(event.target.value as RoleFilter)} aria-label="Lọc business line">{roleOptions.map((option) => <option key={option}>{option}</option>)}</select></label><label><span>KỲ</span><select value={period} onChange={(event) => setPeriod(Number(event.target.value) as PeriodDays)} aria-label="Lọc kỳ báo cáo">{periodOptions.map((option) => <option key={option} value={option}>{option} ngày</option>)}</select></label></div><DemoBadge /><button className="icon-button bell" aria-label="Thông báo dữ liệu mẫu"><BellRing size={18} /><i /></button></header><div className="mobile-mode-note"><DemoBadge /></div><div className="page-content">{content}</div></main>
+    <main className="workspace"><header className="topbar"><button className="mobile-menu icon-button" onClick={() => setSidebarOpen(true)} aria-label="Mở điều hướng"><Menu size={19} /></button><img className="topbar-logo" src="/brand/Primary_Orange.webp" alt="Nina Agency Hub" /><div className="topbar-title"><span>{currentMeta.group ?? "TỔNG QUAN"}</span><b>{currentMeta.label}</b></div><label className="global-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm shop, creator, SKU..." aria-label="Tìm trong trang hiện tại" /></label><div className="filter-group"><label><span>LINE</span><select value={role} onChange={(event) => setRole(event.target.value as RoleFilter)} aria-label="Lọc business line">{roleOptions.map((option) => <option key={option}>{option}</option>)}</select></label><label><span>KỲ</span><select value={period} onChange={(event) => setPeriod(Number(event.target.value) as PeriodDays)} aria-label="Lọc kỳ báo cáo">{periodOptions.map((option) => <option key={option} value={option}>{option} ngày</option>)}</select></label></div><button className="assistant-launcher" onClick={() => setAssistantOpen(true)} aria-label="Mở BOD Assistant"><Bot size={15} /><span>BOD Assistant</span></button><DemoBadge /><button className="icon-button bell" aria-label="Thông báo dữ liệu mẫu"><BellRing size={18} /><i /></button></header><div className="mobile-mode-note"><DemoBadge /></div><div className="page-content">{content}</div></main>
     {selectedClient && <Drawer title={selectedClient.name} onClose={() => setSelectedClient(null)}><div className="drawer-kicker"><span className={`line-tag ${appLineClass(selectedClient.line)}`}>{selectedClient.line}</span><span>Hồ sơ client mẫu</span></div><div className="drawer-section"><h3>Shop liên kết</h3><InfoRow label="Tên shop"><b>{shops.find((shop) => shop.id === selectedClient.shopId)?.name ?? "Shop cục bộ"}</b></InfoRow><InfoRow label="Mô hình phí">{shops.find((shop) => shop.id === selectedClient.shopId)?.feeModel ?? "Chưa gắn mô hình"}</InfoRow><InfoRow label="Chi phí vận hành">{formatVnd(selectedClient.costsMonthly, true)} / tháng</InfoRow></div><div className="drawer-section"><h3>Liên hệ & ghi chú</h3><InfoRow label="Owner">{selectedClient.owner}</InfoRow><InfoRow label="Kênh liên hệ">{selectedClient.contact}</InfoRow><p className="note-box">{selectedClient.notes}</p></div><div className="drawer-section"><h3>Tác vụ mẫu</h3><ul className="task-list">{selectedClient.tasks.length ? selectedClient.tasks.map((task) => <li key={task}><span />{task}</li>) : <li><span />Chưa có tác vụ</li>}</ul></div><div className="drawer-actions"><button className="button secondary" onClick={() => { setSelectedClient(null); openClientModal(selectedClient); }}><Pencil size={15} /> Sửa hồ sơ</button><button className="button ghost" onClick={() => setSelectedClient(null)}>Đóng</button></div></Drawer>}
     {selectedCreator && <Drawer title={selectedCreator.name} onClose={() => setSelectedCreator(null)}><div className="drawer-kicker"><span className={`line-tag ${appLineClass(selectedCreator.line)}`}>{selectedCreator.line}</span><span>{selectedCreator.type} · hồ sơ mẫu</span></div><div className="drawer-section"><h3>Hiệu suất liên quan</h3>{(() => { const row = creatorRows.find((item) => item.creator.id === selectedCreator.id); return <><InfoRow label="GMV quy thuộc">{formatVnd(row?.attributedGmv ?? 0, true)}</InfoRow><InfoRow label="Hoa hồng ước tính">{formatVnd(row?.estimatedCommission ?? 0, true)}</InfoRow><InfoRow label="Booking fee">{formatVnd(selectedCreator.bookingFee, true)}</InfoRow></>; })()}</div><div className="drawer-section form-compact"><h3>Chỉnh sửa cục bộ</h3><label>Niche<input value={creatorForm.niche ?? ""} onChange={(event) => setCreatorForm((previous) => ({ ...previous, niche: event.target.value }))} /></label><label>Deliverables<input value={creatorForm.deliverables ?? ""} onChange={(event) => setCreatorForm((previous) => ({ ...previous, deliverables: event.target.value }))} /></label><label>Trạng thái<select value={creatorForm.relationship ?? selectedCreator.relationship} onChange={(event) => setCreatorForm((previous) => ({ ...previous, relationship: event.target.value as Creator["relationship"] }))}><option>Đang hợp tác</option><option>Cần gia hạn</option><option>Đang đánh giá</option></select></label></div><div className="drawer-section"><h3>Chiến dịch liên kết</h3><div className="tag-list">{selectedCreator.campaigns.map((id) => <span key={id}>{campaignsState.find((campaign) => campaign.id === id)?.name ?? id}</span>)}</div></div><div className="drawer-actions"><button className="button" onClick={saveCreator}><Check size={15} /> Lưu demo</button><button className="button ghost" onClick={() => setSelectedCreator(null)}>Đóng</button></div></Drawer>}
     {selectedCampaign && <Drawer title={selectedCampaign.name} onClose={() => setSelectedCampaign(null)}><div className="drawer-kicker"><StatusPill tone={selectedCampaign.status === "Active" ? "success" : selectedCampaign.status === "Completed" ? "neutral" : "warning"}>{selectedCampaign.status}</StatusPill><span>{selectedCampaign.fulfillment}</span></div>{(() => { const row = campaignRows.find((item) => item.campaign.id === selectedCampaign.id); return <><div className="drawer-section"><h3>Tiến độ mẫu</h3><InfoRow label="GMV"><b>{formatVnd(row?.gmv ?? 0, true)} / {formatVnd(selectedCampaign.targetGmv, true)}</b></InfoRow><Progress value={row?.progress ?? 0} /><InfoRow label="Hoa hồng phát sinh">{formatVnd(row?.commission ?? 0, true)}</InfoRow><InfoRow label="Creator">{selectedCampaign.creatorIds.length} hồ sơ</InfoRow></div></>; })()}<div className="drawer-section"><h3>Sản phẩm seller</h3><div className="tag-list">{selectedCampaign.sellerProductIds.map((id) => <span key={id}>{productsState.find((product) => product.id === id)?.title ?? id}</span>)}</div></div><div className="drawer-section"><h3>Đổi trạng thái demo</h3><div className="status-actions">{(["Draft", "Active", "Completed"] as Campaign["status"][]).map((status) => <button key={status} className={selectedCampaign.status === status ? "selected" : ""} onClick={() => changeCampaignStatus(selectedCampaign, status)}>{status}</button>)}</div><p className="local-explainer">Thao tác này chỉ thay đổi bản ghi trong trình duyệt. Không có API TikTok Shop nào được gọi.</p></div><div className="drawer-actions"><button className="button secondary" onClick={() => { setSelectedCampaign(null); openCampaignModal(selectedCampaign); }}><Pencil size={15} /> Sửa chiến dịch</button><button className="button ghost" onClick={() => setSelectedCampaign(null)}>Đóng</button></div></Drawer>}
     {modal === "client" && <DialogShell title={editingClient ? "Chỉnh sửa khách hàng" : "Thêm khách hàng"} onClose={() => setModal(null)}><form className="form-grid" onSubmit={(event) => { event.preventDefault(); saveClient(); }}><label>Tên khách hàng<input autoFocus value={clientForm.name ?? ""} onChange={(event) => setClientForm((previous) => ({ ...previous, name: event.target.value }))} required /></label><label>Người phụ trách<input value={clientForm.owner ?? ""} onChange={(event) => setClientForm((previous) => ({ ...previous, owner: event.target.value }))} required /></label><label>Shop liên kết<select value={clientForm.shopId ?? ""} onChange={(event) => { const shop = shops.find((item) => item.id === event.target.value); setClientForm((previous) => ({ ...previous, shopId: event.target.value, line: shop?.line ?? previous.line })); }}>{shops.map((shop) => <option key={shop.id} value={shop.id}>{shop.name} · {shop.line}</option>)}</select></label><label>Kênh liên hệ (nội bộ)<input value={clientForm.contact ?? ""} onChange={(event) => setClientForm((previous) => ({ ...previous, contact: event.target.value }))} /></label><label>Chi phí vận hành / tháng<input type="number" min="0" step="1" value={clientForm.costsMonthly ?? 0} onChange={(event) => setClientForm((previous) => ({ ...previous, costsMonthly: Number(event.target.value) }))} /></label><label className="span-2">Ghi chú<textarea value={clientForm.notes ?? ""} onChange={(event) => setClientForm((previous) => ({ ...previous, notes: event.target.value }))} /></label><div className="dialog-footer"><span>Chỉ lưu trong trình duyệt này.</span><button type="button" className="button ghost" onClick={() => setModal(null)}>Hủy</button><button className="button" type="submit"><Check size={15} /> Lưu demo</button></div></form></DialogShell>}
     {modal === "campaign" && <DialogShell title={editingCampaign ? "Chỉnh sửa chiến dịch TAP" : "Tạo chiến dịch TAP"} onClose={() => setModal(null)}><form className="form-grid" onSubmit={(event) => { event.preventDefault(); saveCampaign(); }}><label className="span-2">Tên chiến dịch<input autoFocus value={campaignForm.name ?? ""} onChange={(event) => setCampaignForm((previous) => ({ ...previous, name: event.target.value }))} required /></label><label>Mục tiêu GMV (VND)<input type="number" min="0" step="1" value={campaignForm.targetGmv ?? 0} onChange={(event) => setCampaignForm((previous) => ({ ...previous, targetGmv: Number(event.target.value) }))} /></label><label>Ngân sách hoa hồng (VND)<input type="number" min="0" step="1" value={campaignForm.commissionBudget ?? 0} onChange={(event) => setCampaignForm((previous) => ({ ...previous, commissionBudget: Number(event.target.value) }))} /></label><label>Trạng thái<select value={campaignForm.status ?? "Draft"} onChange={(event) => setCampaignForm((previous) => ({ ...previous, status: event.target.value as Campaign["status"] }))}><option>Draft</option><option>Active</option><option>Completed</option></select></label><label>Fulfillment<select value={campaignForm.fulfillment ?? "Đang chuẩn bị"} onChange={(event) => setCampaignForm((previous) => ({ ...previous, fulfillment: event.target.value as Campaign["fulfillment"] }))}><option>Đang chuẩn bị</option><option>Đang thực hiện</option><option>Đã đối soát</option></select></label><label>Ngày bắt đầu<input type="date" value={campaignForm.startsAt ?? ""} onChange={(event) => setCampaignForm((previous) => ({ ...previous, startsAt: event.target.value }))} /></label><label>Ngày kết thúc<input type="date" value={campaignForm.endsAt ?? ""} onChange={(event) => setCampaignForm((previous) => ({ ...previous, endsAt: event.target.value }))} /></label><div className="dialog-footer"><span>Không gọi API TikTok Shop.</span><button type="button" className="button ghost" onClick={() => setModal(null)}>Hủy</button><button className="button" type="submit"><Check size={15} /> Lưu demo</button></div></form></DialogShell>}
     {modal === "product" && editingProduct && <DialogShell title="Chỉnh sửa sản phẩm mẫu" onClose={() => setModal(null)} wide><form className="form-grid product-form" onSubmit={(event) => { event.preventDefault(); saveProduct(); }}><div className="future-api-note"><AlertTriangle size={17} /><span><b>Tách quyền hành động trong tương lai.</b> Giá bán / tồn kho là hành động seller; hoa hồng affiliate là hành động riêng. Lần lưu này chỉ thay đổi dữ liệu trình duyệt.</span></div><label className="span-2">Tiêu đề<input autoFocus value={productForm.title ?? ""} onChange={(event) => setProductForm((previous) => ({ ...previous, title: event.target.value }))} required /></label><label className="span-2">Mô tả<textarea value={productForm.description ?? ""} onChange={(event) => setProductForm((previous) => ({ ...previous, description: event.target.value }))} /></label><label>Giá bán (VND)<input type="number" min="0" step="1" value={productForm.sellingPrice ?? 0} onChange={(event) => setProductForm((previous) => ({ ...previous, sellingPrice: Number(event.target.value) }))} required /></label><label>Tồn kho<input type="number" min="0" step="1" value={productForm.stock ?? 0} onChange={(event) => setProductForm((previous) => ({ ...previous, stock: Number(event.target.value) }))} required /></label><label>Hoa hồng affiliate (0–1)<input type="number" min="0" max="1" step="0.01" value={productForm.commissionRate ?? 0} onChange={(event) => setProductForm((previous) => ({ ...previous, commissionRate: Number(event.target.value) }))} required /></label><label>Listing<select value={productForm.status ?? editingProduct.status} onChange={(event) => setProductForm((previous) => ({ ...previous, status: event.target.value as Product["status"] }))}><option>Đang bán</option><option>Tạm dừng</option><option>Bản nháp</option></select></label><div className="preview-box span-2"><span>Preview trước / sau</span><div><p><small>Trước</small><b>{formatVnd(editingProduct.sellingPrice)} · tồn {formatNumber(editingProduct.stock)} · HH {formatPercent(editingProduct.commissionRate, 0)}</b></p><ChevronRight size={16} /><p><small>Sau</small><b>{formatVnd(Number(productForm.sellingPrice) || 0)} · tồn {formatNumber(Number(productForm.stock) || 0)} · HH {formatPercent(Number(productForm.commissionRate) || 0, 0)}</b></p></div></div><div className="dialog-footer"><span>Không có thao tác xóa sản phẩm.</span><button type="button" className="button ghost" onClick={() => setModal(null)}>Hủy</button><button className="button" type="submit"><Check size={15} /> Lưu thay đổi demo</button></div></form></DialogShell>}
-    {modal === "connect" && <DialogShell title="Tích hợp TikTok Shop — bản thiết kế tương lai" onClose={() => setModal(null)}><div className="integration-dialog"><div className="integration-icon"><Link2 size={23} /></div><h3>Không thực hiện kết nối trong mockup này</h3><p>AgencyOS hiện chỉ trình bày cấu trúc quyền và dữ liệu. Nút này không mở OAuth, không nhận credential, không gọi API và không đồng bộ TikTok Shop.</p><div className="integration-steps"><div><b>1</b><span>Seller cấp <code>shop_cipher</code></span></div><div><b>2</b><span>Đối tác cấp <code>category_asset_cipher</code></span></div><div><b>3</b><span>Creator hoàn tất ủy quyền riêng</span></div></div><button className="button" onClick={() => setModal(null)}>Đã hiểu</button></div></DialogShell>}
+    {modal === "connect" && <DialogShell title="Tích hợp TikTok Shop — bản thiết kế tương lai" onClose={() => setModal(null)}><div className="integration-dialog"><div className="integration-icon"><Link2 size={23} /></div><h3>Không thực hiện kết nối trong mockup này</h3><p>Nina Agency Hub hiện chỉ trình bày cấu trúc quyền và dữ liệu. Nút này không mở OAuth, không nhận credential, không gọi API và không đồng bộ TikTok Shop.</p><div className="integration-steps"><div><b>1</b><span>Seller cấp <code>shop_cipher</code></span></div><div><b>2</b><span>Đối tác cấp <code>category_asset_cipher</code></span></div><div><b>3</b><span>Creator hoàn tất ủy quyền riêng</span></div></div><button className="button" onClick={() => setModal(null)}>Đã hiểu</button></div></DialogShell>}
+    {assistantOpen && <AssistantDrawer period={period} role={role} summary={summary} finance={finance} mix={mix} filteredOrders={filteredOrders} alerts={overviewAlerts} messages={assistantMessages} onAsk={askAssistant} onClose={() => setAssistantOpen(false)} />}
     <Toaster position="bottom-right" richColors closeButton />
   </div>;
 }

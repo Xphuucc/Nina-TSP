@@ -1,6 +1,6 @@
-# AgencyOS — interactive Vietnam TikTok Shop agency mockup
+# Nina Agency Hub — interactive Vietnam TikTok Shop agency mockup
 
-AgencyOS is a **Vietnamese-language local demonstration dashboard** for a TikTok Shop agency that works across MCN, TAP, and TSP. It is intentionally a reviewable product mockup, not an integration or a financial system of record.
+Nina Agency Hub is a **Vietnamese-language local demonstration dashboard** for a TikTok Shop agency that works across MCN, TAP, and TSP. It is intentionally a reviewable product mockup, not an integration or a financial system of record.
 
 ## Run locally
 
@@ -19,19 +19,19 @@ The result is placed in `dist/public`.
 
 ## What is included
 
-The app contains a deterministic synthetic model with eight fictional shops, sixteen fictional creators/partners, twelve fictional products, five fictional TAP campaigns, and 90 days of generated order records. Total GMV, commission states, revenue mix, charts, rankings, financial reconciliation, role filters, period filters, and CSV exports derive from the same model.
+The app contains a deterministic synthetic model with eight fictional shops, sixteen fictional creators/partners, twelve fictional products, five fictional TAP campaigns, and 90 days of generated order records. Total GMV, commission states, revenue mix, charts, rankings, financial reconciliation, role filters, period filters, and CSV exports derive from the same model. The **Nina BOD Assistant** is a local Vietnamese simulation that answers suggested questions from these same figures and shows the active period, scope, and freshness timestamp.
 
 Local edits for clients, creators, campaigns, and products persist in the browser’s `localStorage`. **Đặt lại demo** clears those changes. There is no arbitrary product deletion.
 
 ## Demo limitations
 
-Every screen is marked **“Dữ liệu mẫu · Chưa kết nối TikTok Shop.”** The app deliberately does **not** contain TikTok credentials, OAuth, live shop data, real customer personal details, messages, transactions, or a sync action. The “Kết nối TikTok Shop” control is an explanatory future-integration dialog only.
+Every screen is marked **“Dữ liệu mẫu · Chưa kết nối TikTok Shop.”** The app deliberately does **not** contain TikTok credentials, OAuth, live shop data, real customer personal details, messages, transactions, or a sync action. The “Kết nối TikTok Shop” control is an explanatory future-integration dialog only. The BOD Assistant is explicitly labeled **Simulation**: it does not connect Gemma, TikTok Shop, or any live model/API, and its replies are deterministic local demo text.
 
 All product catalog, order, commission, owner, and contract values are fictional and must not be used for bookkeeping or operational decisions. GMV is displayed separately from agency revenue; contribution profit is computed from the documented synthetic revenue/cost bridge.
 
 ## Planned API mapping (not implemented)
 
-| Future domain | Separate consent/capability required | Proposed AgencyOS result |
+| Future domain | Separate consent/capability required | Proposed Nina Agency Hub result |
 | --- | --- | --- |
 | Seller shop operations | `shop_cipher` | Read shop/catalog/order scope; seller price and inventory changes remain seller actions. |
 | TAP partner assets | `category_asset_cipher` | Read partner category/asset scope for campaign association. |
