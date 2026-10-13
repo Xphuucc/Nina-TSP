@@ -58,3 +58,16 @@ For every endpoint record: document title/URL, path/method/version, entity type,
 
 ## Remaining audit work
 Read complete current contracts for TAP/CAP orders, partner content/sample status detail, marketplace newer versions, SKU analytics, customer service metrics/conversations, customer engagement, offline export reports, webhook payloads/retries, seller statements/withdrawals/unsettled transaction versions, FBT/supply-chain and cross-border/reviews/SPS where relevant. These are included as review items, not omitted or promised available for VN.
+
+## Additional employee-source groups confirmed by the user
+
+The demo catalog now contains 28 families. Added manual-first groups:
+
+| Group | Owner | Data |
+| --- | --- | --- |
+| KOL booking | Nam Tran; Tri Pham for overall Socom | KOL / Brand / Campaign, fee, deliverables and attribution links |
+| Leads | Huong Le | Source, stage, owner, follow-up, next action and conversion |
+| Invoices | Lin Huynh | Invoice, counterparty, amount/currency, due date and payment state |
+| Cashflow | Lin Huynh | Actual/planned receipts and payments, balances and reconciliation |
+
+These agency-owned sources are not claimed available through TTS APIs. Nina Nguyen, Thuc Huynh and Phuc Nguyen have full application access as requested; Phuc's title is Planner, not agency owner. Tri Pham replaces the earlier mistaken name Minh Tri. The role selector is a demo; real identity provisioning and enforcement remain pending.
